@@ -7,10 +7,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-    "os"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
 
 var DatabaseName string
@@ -19,10 +18,10 @@ var DatabaseUrl string
 //データベース初期化
 func DbInit() {
 	//データベース関連
-    //	DatabaseUrl = "test.sqlite3"
-	//DatabaseName = "sqlite3"
-    DatabaseUrl := os.Getenv("DATABASE_URL")
-    DatabaseName := "postgres"
+    DatabaseUrl = "test.sqlite3"
+	DatabaseName = "sqlite3"
+    //  DatabaseUrl := os.Getenv("DATABASE_URL")
+    //DatabaseName := "postgres"
 
 	db, err := gorm.Open(DatabaseName, DatabaseUrl)
 	if err != nil {
