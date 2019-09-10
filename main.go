@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -72,7 +71,7 @@ func authMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		token, err := auth.VerifyIDToken(context.Background(), idToken)
 		if err != nil {
 			// JWT が無効なら Handler に進まず別処理
-			fmt.Printf("error verifying ID token: %v\n", err)
+			log.Printf("error verifying ID token: %v\n", err)
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte("error verifying ID token\n"))
 			return
