@@ -31,7 +31,7 @@ func main() {
     allowedOrigins := handlers.AllowedOrigins([]string{"https://sharp-wozniak-4e87de.netlify.com/register"})
 	allowedMethods := handlers.AllowedMethods([]string{"GET", "POST", "DELETE", "PUT", "OPTIONS"})
 	//Content-typeを加えるとpostできるようになる。
-	allowedHeaders := handlers.AllowedHeaders([]string{"Origin", "Content-Type","X-Requested-with", "Authorization"})
+	allowedHeaders := handlers.AllowedHeaders([]string{"Content-Type","X-Requested-with", "Authorization"})
 
 	r := mux.NewRouter()
     //渡されるidの値に注意
