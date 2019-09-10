@@ -31,16 +31,16 @@ func main() {
     allowedOrigins := handlers.AllowedOrigins([]string{"https://sharp-wozniak-4e87de.netlify.com/register"})
 	allowedMethods := handlers.AllowedMethods([]string{"GET", "POST", "DELETE", "PUT", "OPTIONS"})
 	//Content-typeを加えるとpostできるようになる。
-	allowedHeaders := handlers.AllowedHeaders([]string{"Content-Type","X-Requested-with", "Authorization"})
+	allowedHeaders := handlers.AllowedHeaders([]string{"Origin", "Content-Type","X-Requested-with", "Authorization"})
 
 	r := mux.NewRouter()
     //渡されるidの値に注意
 	r.HandleFunc("/insert_user/:{id}", authMiddleware(function.InsertUserData)).Methods("POST", "OPTIONS")
-	r.HandleFunc("/get_user/:{id}", authMiddleware(function.GetUserData)).Methods("GET")
-	r.HandleFunc("/insert_room/:{id}", authMiddleware(function.InsertRoomData)).Methods("POST")
-	r.HandleFunc("/get_owner_room/:{id}", authMiddleware(function.GetOwnerRoomData)).Methods("GET")
-	r.HandleFunc("/insert_list/:{id}", authMiddleware(function.InsertListData)).Methods("POST")
-    r.HandleFunc("/get_room_list/:{id}", authMiddleware(function.GetOwnerListData)).Methods("GET")
+	r.HandleFunc("/get_user/:{id}", authMiddleware(function.GetUserData)).Methods("GET", "OPTIONS")
+	r.HandleFunc("/insert_room/:{id}", authMiddleware(function.InsertRoomData)).Methods("POST", "OPTIONS")
+	r.HandleFunc("/get_owner_room/:{id}", authMiddleware(function.GetOwnerRoomData)).Methods("GET", "OPTIONS")
+	r.HandleFunc("/insert_list/:{id}", authMiddleware(function.InsertListData)).Methods("POST", "OPTIONS")
+    r.HandleFunc("/get_room_list/:{id}", authMiddleware(function.GetOwnerListData)).Methods("GET", "OPTIONS")
     r.HandleFunc("/check_room_pass/:{password}/:{userid}", authMiddleware(function.CheckRoomPassword)).Methods("GET")
     r.HandleFunc("/check_list_pass/:{password}/:{roomid}/:{userid}", authMiddleware(function.CheckListPassword)).Methods("GET")
     r.HandleFunc("/get_member_room/:{id}", function.GetMemberRoomData).Methods("GET")
