@@ -28,11 +28,10 @@ func main() {
     
     function.DbInit()
 	//CORS対応させるにはこの３つを加える必要がある。
-    //	allowedOrigins := handlers.AllowedOrigins([]string{"http://localhost:8080"})
-	allowedOrigins := handlers.AllowedOrigins([]string{"*"})
+    allowedOrigins := handlers.AllowedOrigins([]string{"http://localhost:8080"})
 	allowedMethods := handlers.AllowedMethods([]string{"GET", "POST", "DELETE", "PUT", "OPTIONS"})
 	//Content-typeを加えるとpostできるようになる。
-	allowedHeaders := handlers.AllowedHeaders([]string{"Content-Type", "X-Requested-with", "Authorization"})
+	allowedHeaders := handlers.AllowedHeaders([]string{"Content-Type", "application/json", "X-Requested-with", "Authorization"})
 
 	r := mux.NewRouter()
     //渡されるidの値に注意
