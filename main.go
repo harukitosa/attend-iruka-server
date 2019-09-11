@@ -27,7 +27,7 @@ func main() {
     
     function.DbInit()
 	//CORS対応させるにはこの３つを加える必要がある。
-    allowedOrigins := handlers.AllowedOrigins([]string{"https://sharp-wozniak-4e87de.netlify.com/register"})
+    allowedOrigins := handlers.AllowedOrigins([]string{"http://localhost:8080"})
 	allowedMethods := handlers.AllowedMethods([]string{"GET", "POST", "DELETE", "PUT", "OPTIONS"})
 	//Content-typeを加えるとpostできるようになる。
 	allowedHeaders := handlers.AllowedHeaders([]string{"Origin", "Content-Type","X-Requested-with", "Authorization"})
@@ -76,7 +76,7 @@ func authMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			w.Write([]byte("error verifying ID token\n"))
 			return
 		}
-		// log.Printf("Verified ID token: %v\n", token)
+		log.Printf("Verified ID token: %v\n", token)
 		//user_idの受け取り方
 		log.Printf("user id: %v\n", token.UID)
 		CurrentUserId = token.UID

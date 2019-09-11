@@ -10,7 +10,8 @@ import (
 	"net/http"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
+	_ "github.com/mattn/go-sqlite3"
+    _ "github.com/lib/pq"
 )
 
 var DatabaseName string
@@ -19,7 +20,7 @@ var DatabaseUrl string
 //データベース初期化
 func DbInit() {
 	//データベース関連
-    // DatabaseUrl = "test.sqlite3"
+    //DatabaseUrl = "test.sqlite3"
 	//DatabaseName = "sqlite3"
     DatabaseUrl := os.Getenv("DATABASE_URL")
     DatabaseName := "postgres"
