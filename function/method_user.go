@@ -22,8 +22,8 @@ func DbInit() {
 	//データベース関連
     //DatabaseUrl = "test.sqlite3"
 	//DatabaseName = "sqlite3"
-    DatabaseUrl := os.Getenv("DATABASE_URL")
-    DatabaseName := "postgres"
+    DatabaseUrl = os.Getenv("DATABASE_URL")
+    DatabaseName = "postgres"
 
 	db, err := gorm.Open(DatabaseName, DatabaseUrl)
 	if err != nil {
