@@ -1,0 +1,8 @@
+{
+    "editor.formatOnPaste": true, // ペースト時に自動でフォーマット
+    "editor.formatOnSave": true, // ファイル保存時に自動でフォーマット
+    "editor.formatOnType": true, // 入力した行を自動でフォーマット 
+    "editor.tabSize": 2, // タブのサイズ変更
+    "editor.wordWrap": "on", // エディターの幅で折り返し  
+    "workbench.startupEditor": "none" // Welcome Page を表示しない
+}

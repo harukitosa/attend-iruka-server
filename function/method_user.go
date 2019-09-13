@@ -2,17 +2,19 @@ package function
 
 import (
 	"Documents/attendance_book/server/src/model"
+	"os"
 
 	"encoding/json"
 	"fmt"
 	"log"
-    "os"
 	"net/http"
+
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-
 )
+
+// _ "github.com/mattn/go-sqlite3"
 
 var DatabaseName string
 var DatabaseUrl string
@@ -20,10 +22,10 @@ var DatabaseUrl string
 //データベース初期化
 func DbInit() {
 	//データベース関連
-    //DatabaseUrl = "test.sqlite3"
-	//DatabaseName = "sqlite3"
-    DatabaseUrl = os.Getenv("DATABASE_URL")
-    DatabaseName = "postgres"
+	// DatabaseUrl = "test.sqlite3"
+	// DatabaseName = "sqlite3"
+	DatabaseUrl = os.Getenv("DATABASE_URL")
+	DatabaseName = "postgres"
 
 	db, err := gorm.Open(DatabaseName, DatabaseUrl)
 	if err != nil {
@@ -33,9 +35,9 @@ func DbInit() {
 	db.AutoMigrate(&model.User{})
 	db.AutoMigrate(&model.Room{})
 	db.AutoMigrate(&model.List{})
-    db.AutoMigrate(&model.RelationUserRoom{})
-    db.AutoMigrate(&model.RelationUserList{})
-    db.AutoMigrate(&model.PasswordList{})
+	db.AutoMigrate(&model.RelationUserRoom{})
+	db.AutoMigrate(&model.RelationUserList{})
+	db.AutoMigrate(&model.PasswordList{})
 	defer db.Close()
 }
 
@@ -65,6 +67,33 @@ func InsertUserData(w http.ResponseWriter, r *http.Request) {
 		Name:   User.Name,
 	})
 	fmt.Printf("user:%+v\n", User)
+}
+
+func EditUserData(w http.ResponseWriter, r *http.Request) {
+	db, err := gorm.Open(DatabaseName, DatabaseUrl)
+	if err != nil {
+		panic("We can't open database!（dbInsert）")
+	}
+	defer db.Close()
+
+	decoder := json.NewDecoder(r.Body)
+
+	var newuser model.User
+	error := decoder.Decode(&newuser)
+	if error != nil {
+		w.Write([]byte("json decode error" + error.Error() + "\n"))
+	}
+	vars := mux.Vars(r)
+	newuser.Id = vars["id"]
+
+	var user model.User
+	db.Where("Id = ?", newuser.Id).First(&user)
+	user.Id = newuser.Id
+	user.Class = newuser.Class
+	user.Grade = newuser.Grade
+	user.Number = newuser.Number
+	user.Name = newuser.Name
+	db.Save(&user)
 }
 
 //あるidのユーザーデータの取得

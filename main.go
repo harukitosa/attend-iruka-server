@@ -24,27 +24,28 @@ func main() {
 	if port == "" {
 		log.Fatal("$PORT must beset")
 	}
-    
-    function.DbInit()
+
+	function.DbInit()
 	//CORS対応させるにはこの３つを加える必要がある。
-    allowedOrigins := handlers.AllowedOrigins([]string{"https://iruka-roll-book.com"})
-	allowedMethods := handlers.AllowedMethods([]string{"GET", "POST", "DELETE", "PUT", "OPTIONS"})
 	//Content-typeを加えるとpostできるようになる。
-	allowedHeaders := handlers.AllowedHeaders([]string{"Origin", "Content-Type","X-Requested-with", "Authorization"})
+	allowedOrigins := handlers.AllowedOrigins([]string{"https://iruka-roll-book.com"})
+	allowedMethods := handlers.AllowedMethods([]string{"GET", "POST", "DELETE", "PUT", "OPTIONS"})
+	allowedHeaders := handlers.AllowedHeaders([]string{"Origin", "Content-Type", "X-Requested-with", "Authorization"})
 
 	r := mux.NewRouter()
-    //渡されるidの値に注意
+	//渡されるidの値に注意
 	r.HandleFunc("/insert_user/:{id}", authMiddleware(function.InsertUserData)).Methods("POST", "OPTIONS")
 	r.HandleFunc("/get_user/:{id}", authMiddleware(function.GetUserData)).Methods("GET", "OPTIONS")
 	r.HandleFunc("/insert_room/:{id}", authMiddleware(function.InsertRoomData)).Methods("POST", "OPTIONS")
-	r.HandleFunc("/get_owner_room/:{id}", authMiddleware(function.GetOwnerRoomData)).Methods("GET", "OPTIONS")
 	r.HandleFunc("/insert_list/:{id}", authMiddleware(function.InsertListData)).Methods("POST", "OPTIONS")
-    r.HandleFunc("/get_room_list/:{id}", authMiddleware(function.GetOwnerListData)).Methods("GET", "OPTIONS")
-    r.HandleFunc("/check_room_pass/:{password}/:{userid}", authMiddleware(function.CheckRoomPassword)).Methods("GET")
-    r.HandleFunc("/check_list_pass/:{password}/:{roomid}/:{userid}", authMiddleware(function.CheckListPassword)).Methods("GET")
-    r.HandleFunc("/get_member_room/:{id}", function.GetMemberRoomData).Methods("GET")
-    r.HandleFunc("/get_member_list/:{listid}", authMiddleware(function.GetListMember)).Methods("GET")
-    r.HandleFunc("/get_all_member_list/:{listid}", authMiddleware(function.GetListAllMember)).Methods("GET")
+	r.HandleFunc("/get_room_list/:{id}", authMiddleware(function.GetOwnerListData)).Methods("GET", "OPTIONS")
+	r.HandleFunc("/check_room_pass/:{password}/:{userid}", authMiddleware(function.CheckRoomPassword)).Methods("GET")
+	r.HandleFunc("/check_list_pass/:{password}/:{roomid}/:{userid}", authMiddleware(function.CheckListPassword)).Methods("GET")
+	r.HandleFunc("/get_member_room/:{id}", function.GetMemberRoomData).Methods("GET")
+	r.HandleFunc("/get_member_list/:{listid}", authMiddleware(function.GetListMember)).Methods("GET")
+	r.HandleFunc("/get_all_member_list/:{listid}", authMiddleware(function.GetListAllMember)).Methods("GET")
+	r.HandleFunc("/get_owner_room/:{id}", authMiddleware(function.GetOwnerRoomData)).Methods("GET")
+	r.HandleFunc("/edit_user/:{id}", authMiddleware(function.EditUserData)).Methods("POST")
 	log.Printf("server start port localhost:" + port)
 	log.Fatal(http.ListenAndServe(":"+port, handlers.CORS(allowedOrigins, allowedMethods, allowedHeaders)(r)))
 }
@@ -83,4 +84,3 @@ func authMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		next.ServeHTTP(w, r)
 	}
 }
-
