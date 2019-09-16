@@ -46,6 +46,7 @@ func main() {
 	r.HandleFunc("/get_all_member_list/:{listid}", authMiddleware(function.GetListAllMember)).Methods("GET")
 	r.HandleFunc("/get_owner_room/:{id}", authMiddleware(function.GetOwnerRoomData)).Methods("GET")
 	r.HandleFunc("/edit_user/:{id}", authMiddleware(function.EditUserData)).Methods("POST")
+	r.HandleFunc("/get_all_room_member/:{id}", authMiddleware(function.GetAllRoomMember)).Methods("GET")
 	log.Printf("server start port localhost:" + port)
 	log.Fatal(http.ListenAndServe(":"+port, handlers.CORS(allowedOrigins, allowedMethods, allowedHeaders)(r)))
 }

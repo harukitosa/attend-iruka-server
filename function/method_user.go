@@ -2,19 +2,19 @@ package function
 
 import (
 	"Documents/attendance_book/server/src/model"
-	"os"
 
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
-// _ "github.com/mattn/go-sqlite3"
+//_ "github.com/mattn/go-sqlite3"
 
 var DatabaseName string
 var DatabaseUrl string
@@ -22,8 +22,8 @@ var DatabaseUrl string
 //データベース初期化
 func DbInit() {
 	//データベース関連
-	// DatabaseUrl = "test.sqlite3"
-	// DatabaseName = "sqlite3"
+	//DatabaseUrl = "test.sqlite3"
+	//DatabaseName = "sqlite3"
 	DatabaseUrl = os.Getenv("DATABASE_URL")
 	DatabaseName = "postgres"
 
@@ -114,4 +114,26 @@ func GetUserData(w http.ResponseWriter, r *http.Request) {
 func Private(w http.ResponseWriter, r *http.Request) {
 	log.Printf("GET: Private")
 	w.Write([]byte("hello private!\n"))
+}
+
+func GetAllRoomMember(w http.ResponseWriter, r *http.Request) {
+	db, err := gorm.Open(DatabaseName, DatabaseUrl)
+	if err != nil {
+		panic("We can't open database! (GetAllRoomMember)")
+	}
+	defer db.Close()
+	log.Printf("GET: GetAllRoomMember")
+	vars := mux.Vars(r)
+	roomId := vars["id"]
+	var usersId []model.RelationUserRoom
+	db.Where(&model.RelationUserRoom{RoomId: roomId}).Find(&usersId)
+
+	var users []model.User
+	for i := 0; i < len(usersId); i++ {
+		var user model.User
+		db.Where(&model.User{Id: usersId[i].UserId}).First(&user)
+		users = append(users, user)
+	}
+	log.Printf("allroomuser: %v", users)
+	json.NewEncoder(w).Encode(users)
 }
