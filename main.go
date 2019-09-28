@@ -16,7 +16,8 @@ import (
 	"Documents/attendance_book/server/src/function"
 )
 
-var CurrentUserId string
+// CurrentUserID 現在ログインしているユーザーのIDを保存します
+var CurrentUserID string
 
 func main() {
 	//port指定
@@ -28,25 +29,16 @@ func main() {
 	function.DbInit()
 	//CORS対応させるにはこの３つを加える必要がある。
 	//Content-typeを加えるとpostできるようになる。
-	allowedOrigins := handlers.AllowedOrigins([]string{"https://iruka-roll-book.com"})
+	allowedOrigins := handlers.AllowedOrigins([]string{"http://localhost:8080", "https://iruka-roll-book.com"})
 	allowedMethods := handlers.AllowedMethods([]string{"GET", "POST", "DELETE", "PUT", "OPTIONS"})
 	allowedHeaders := handlers.AllowedHeaders([]string{"Origin", "Content-Type", "X-Requested-with", "Authorization"})
-
 	r := mux.NewRouter()
-	//渡されるidの値に注意
-	r.HandleFunc("/insert_user/:{id}", authMiddleware(function.InsertUserData)).Methods("POST", "OPTIONS")
-	r.HandleFunc("/get_user/:{id}", authMiddleware(function.GetUserData)).Methods("GET", "OPTIONS")
-	r.HandleFunc("/insert_room/:{id}", authMiddleware(function.InsertRoomData)).Methods("POST", "OPTIONS")
-	r.HandleFunc("/insert_list/:{id}", authMiddleware(function.InsertListData)).Methods("POST", "OPTIONS")
-	r.HandleFunc("/get_room_list/:{id}", authMiddleware(function.GetOwnerListData)).Methods("GET", "OPTIONS")
-	r.HandleFunc("/check_room_pass/:{password}/:{userid}", authMiddleware(function.CheckRoomPassword)).Methods("GET")
-	r.HandleFunc("/check_list_pass/:{password}/:{roomid}/:{userid}", authMiddleware(function.CheckListPassword)).Methods("GET")
-	r.HandleFunc("/get_member_room/:{id}", function.GetMemberRoomData).Methods("GET")
-	r.HandleFunc("/get_member_list/:{listid}", authMiddleware(function.GetListMember)).Methods("GET")
-	r.HandleFunc("/get_all_member_list/:{listid}", authMiddleware(function.GetListAllMember)).Methods("GET")
-	r.HandleFunc("/get_owner_room/:{id}", authMiddleware(function.GetOwnerRoomData)).Methods("GET")
-	r.HandleFunc("/edit_user/:{id}", authMiddleware(function.EditUserData)).Methods("POST")
-	r.HandleFunc("/get_all_room_member/:{id}", authMiddleware(function.GetAllRoomMember)).Methods("GET")
+
+	r.HandleFunc("/insert_student/:{ownerID}", authMiddleware(function.InsertStudent)).Methods("POST")
+	r.HandleFunc("/get_students/:{ownerID}", authMiddleware(function.GetStudents)).Methods("GET")
+	r.HandleFunc("/roll_call/:{year}/:{month}/:{day}", authMiddleware(function.RollCallAllStudents)).Methods("POST")
+	r.HandleFunc("/get_month_data/:{ownerID}/:{year}/:{month}", authMiddleware(function.GetAttendanceMonthData)).Methods("GET")
+
 	log.Printf("server start port localhost:" + port)
 	log.Fatal(http.ListenAndServe(":"+port, handlers.CORS(allowedOrigins, allowedMethods, allowedHeaders)(r)))
 }
@@ -78,10 +70,10 @@ func authMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			w.Write([]byte("error verifying ID token\n"))
 			return
 		}
-		log.Printf("Verified ID token: %v\n", token)
+		// log.Printf("Verified ID token: %v\n", token)
 		//user_idの受け取り方
-		log.Printf("user id: %v\n", token.UID)
-		CurrentUserId = token.UID
+		// log.Printf("user id: %v\n", token.UID)
+		CurrentUserID = token.UID
 		next.ServeHTTP(w, r)
 	}
 }
