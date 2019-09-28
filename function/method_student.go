@@ -17,8 +17,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
-//	_ "github.com/mattn/go-sqlite3"
-// _ "github.com/jinzhu/gorm/dialects/postgres"
+// _ "github.com/mattn/go-sqlite3"
 
 // DatabaseName はデータベースの名前を保存します
 var DatabaseName string
@@ -40,8 +39,8 @@ func GenerateID() string {
 // DbInit データベース初期化する関数です
 func DbInit() {
 	//データベース関連
-	//DatabaseURL = "test.sqlite3"
-	//DatabaseName = "sqlite3"
+	// DatabaseURL = "test.sqlite3"
+	// DatabaseName = "sqlite3"
 	DatabaseURL = os.Getenv("DATABASE_URL")
 	DatabaseName = "postgres"
 
