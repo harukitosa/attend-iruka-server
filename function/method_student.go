@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/google/uuid"
@@ -13,10 +14,10 @@ import (
 	"github.com/jinzhu/gorm"
 
 	//sqlite3をインポートします
-    _ "github.com/jinzhu/gorm/dialects/postgres"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
- //	_ "github.com/mattn/go-sqlite3"
+//	_ "github.com/mattn/go-sqlite3"
 // _ "github.com/jinzhu/gorm/dialects/postgres"
 
 // DatabaseName はデータベースの名前を保存します
@@ -41,8 +42,8 @@ func DbInit() {
 	//データベース関連
 	//DatabaseURL = "test.sqlite3"
 	//DatabaseName = "sqlite3"
-     DatabaseURL = os.Getenv("DATABASE_URL")
-	 DatabaseName = "postgres"
+	DatabaseURL = os.Getenv("DATABASE_URL")
+	DatabaseName = "postgres"
 
 	db, err := gorm.Open(DatabaseName, DatabaseURL)
 	if err != nil {
