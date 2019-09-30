@@ -14,6 +14,12 @@ type Attendance struct {
 type AllAttendanceData struct {
 	StudentID string `json:"studentID"`
 	Name      string `json:"name"`
+	Number    string `json:"number"`
 	Attend    string `json:"attend"`
 	Absent    string `json:"absent"`
+}
+
+// Check Send json ture or not
+type Check struct {
+	Check bool `json:"check"`
 }

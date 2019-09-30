@@ -72,16 +72,20 @@ func InsertStudent(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("json decode error" + error.Error() + "\n"))
 	}
 	student.OwnerID = vars["ownerID"]
-	student.ID = GenerateID()
-	db.Create(&model.Student{
-		ID:            student.ID,
-		Grade:         student.Grade,
-		Class:         student.Class,
-		Number:        student.Number,
-		Name:          student.Name,
-		OwnerID:       student.OwnerID,
-		DefaultStatus: "attend",
-	})
+	number := vars["number"]
+	num, _ := strconv.Atoi(number)
+	for i := 0; i < num; i++ {
+		student.ID = GenerateID()
+		n := strconv.Itoa(i + 1)
+		db.Create(&model.Student{
+			ID:            student.ID,
+			Grade:         student.Grade,
+			Class:         student.Class,
+			Number:        n,
+			OwnerID:       student.OwnerID,
+			DefaultStatus: "attend",
+		})
+	}
 }
 
 // GetStudents OwnerIDに対応した生徒情報を提供します
@@ -126,19 +130,29 @@ func RollCallAllStudents(w http.ResponseWriter, r *http.Request) {
 	month := vars["month"]
 	day := vars["day"]
 
-	db.Create(&model.Attendance{
-		ID:        uuid,
-		StudentID: student.ID,
-		Status:    student.DefaultStatus,
-		Year:      year,
-		Month:     month,
-		Day:       day,
-	})
-
+	var list model.Attendance
+	db.Where(&model.Attendance{StudentID: student.ID, Year: year, Month: month, Day: day}).Find(&list)
+	var check model.Check
+	if list.Year == year {
+		log.Printf("##$$$$#####\n")
+		check.Check = false
+		json.NewEncoder(w).Encode(check.Check)
+	} else {
+		db.Create(&model.Attendance{
+			ID:        uuid,
+			StudentID: student.ID,
+			Status:    student.DefaultStatus,
+			Year:      year,
+			Month:     month,
+			Day:       day,
+		})
+		check.Check = true
+		json.NewEncoder(w).Encode(check.Check)
+	}
 }
 
-// GetAttendanceMonthData すべての生徒の名前と指定された月の出席情報を提供します
-func GetAttendanceMonthData(w http.ResponseWriter, r *http.Request) {
+// GetAttendanceRollData すべての生徒の名前と指定された月の出席情報を提供します
+func GetAttendanceRollData(w http.ResponseWriter, r *http.Request) {
 	db, err := gorm.Open(DatabaseName, DatabaseURL)
 	if err != nil {
 		panic("We can't open database!（GetAttendanceData）")
@@ -147,8 +161,8 @@ func GetAttendanceMonthData(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	ownerID := vars["ownerID"]
-	year := vars["year"]
-	month := vars["month"]
+	// year := vars["year"]
+	// month := vars["month"]
 
 	// 生徒データを集める
 	var students []model.Student
@@ -159,16 +173,17 @@ func GetAttendanceMonthData(w http.ResponseWriter, r *http.Request) {
 	for i := 0; i < len(students); i++ {
 		var countAttend int
 		var countAbsent int
-		var AttendanceList []model.Attendance
-		var AbsentList []model.Attendance
+		var attendanceList []model.Attendance
+		var absentList []model.Attendance
 
-		db.Where(&model.Attendance{StudentID: students[i].ID, Status: "attend", Year: year, Month: month}).Find(&AttendanceList)
-		countAttend = len(AttendanceList)
-		db.Where(&model.Attendance{StudentID: students[i].ID, Status: "absent", Year: year, Month: month}).Find(&AbsentList)
-		countAbsent = len(AbsentList)
+		db.Where(&model.Attendance{StudentID: students[i].ID, Status: "attend"}).Find(&attendanceList)
+		countAttend = len(attendanceList)
+		db.Where(&model.Attendance{StudentID: students[i].ID, Status: "absent"}).Find(&absentList)
+		countAbsent = len(absentList)
 		var attendanceData model.AllAttendanceData
 		attendanceData.StudentID = students[i].ID
 		attendanceData.Name = students[i].Name
+		attendanceData.Number = students[i].Number
 		attendanceData.Absent = strconv.Itoa(countAbsent)
 		attendanceData.Attend = strconv.Itoa(countAttend)
 		allAttendanceData = append(allAttendanceData, attendanceData)

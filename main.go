@@ -34,10 +34,10 @@ func main() {
 	allowedHeaders := handlers.AllowedHeaders([]string{"Origin", "Content-Type", "X-Requested-with", "Authorization"})
 	r := mux.NewRouter()
 
-	r.HandleFunc("/insert_student/:{ownerID}", authMiddleware(function.InsertStudent)).Methods("POST")
+	r.HandleFunc("/insert_student/:{ownerID}/:{number}", authMiddleware(function.InsertStudent)).Methods("POST")
 	r.HandleFunc("/get_students/:{ownerID}", authMiddleware(function.GetStudents)).Methods("GET")
 	r.HandleFunc("/roll_call/:{year}/:{month}/:{day}", authMiddleware(function.RollCallAllStudents)).Methods("POST")
-	r.HandleFunc("/get_month_data/:{ownerID}/:{year}/:{month}", authMiddleware(function.GetAttendanceMonthData)).Methods("GET")
+	r.HandleFunc("/get_roll_data/:{ownerID}", authMiddleware(function.GetAttendanceRollData)).Methods("GET")
 
 	log.Printf("server start port localhost:" + port)
 	log.Fatal(http.ListenAndServe(":"+port, handlers.CORS(allowedOrigins, allowedMethods, allowedHeaders)(r)))
