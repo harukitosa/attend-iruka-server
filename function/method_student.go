@@ -39,8 +39,8 @@ func GenerateID() string {
 // DbInit データベース初期化する関数です
 func DbInit() {
 	//データベース関連
-	// DatabaseURL = "test.sqlite3"
-	// DatabaseName = "sqlite3"
+	//DatabaseURL = "test.sqlite3"
+	//DatabaseName = "sqlite3"
 	DatabaseURL = os.Getenv("DATABASE_URL")
 	DatabaseName = "postgres"
 
@@ -86,6 +86,25 @@ func InsertStudent(w http.ResponseWriter, r *http.Request) {
 			DefaultStatus: "attend",
 		})
 	}
+}
+
+// GetOneStudent 一人の生徒の出席データを返します
+func GetOneStudent(w http.ResponseWriter, r *http.Request) {
+	var attendance []model.Attendance
+
+	db, err := gorm.Open(DatabaseName, DatabaseURL)
+	if err != nil {
+		panic("We can't open database!（GetOneStudent）")
+	}
+	defer db.Close()
+	log.Printf("GET: GetOneStudents")
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	db.Where(&model.Attendance{StudentID: id[1:]}).Find(&attendance)
+	log.Printf("attendance:%v", attendance)
+	json.NewEncoder(w).Encode(attendance)
 }
 
 // GetStudents OwnerIDに対応した生徒情報を提供します
@@ -161,8 +180,6 @@ func GetAttendanceRollData(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	ownerID := vars["ownerID"]
-	// year := vars["year"]
-	// month := vars["month"]
 
 	// 生徒データを集める
 	var students []model.Student
