@@ -39,8 +39,8 @@ func GenerateID() string {
 // DbInit データベース初期化する関数です
 func DbInit() {
 	//データベース関連
-	//DatabaseURL = "test.sqlite3"
-	//DatabaseName = "sqlite3"
+	// DatabaseURL = "test.sqlite3"
+	// DatabaseName = "sqlite3"
 	DatabaseURL = os.Getenv("DATABASE_URL")
 	DatabaseName = "postgres"
 
@@ -74,7 +74,11 @@ func InsertStudent(w http.ResponseWriter, r *http.Request) {
 	student.OwnerID = vars["ownerID"]
 	number := vars["number"]
 	num, _ := strconv.Atoi(number)
-	for i := 0; i < num; i++ {
+
+	var nowStudents []model.Student
+	db.Where(&model.Student{OwnerID: student.OwnerID}).Find(&nowStudents)
+
+	for i := len(nowStudents); i < num+len(nowStudents); i++ {
 		student.ID = GenerateID()
 		n := strconv.Itoa(i + 1)
 		db.Create(&model.Student{
@@ -103,7 +107,7 @@ func GetOneStudent(w http.ResponseWriter, r *http.Request) {
 	id := vars["id"]
 
 	db.Where(&model.Attendance{StudentID: id[1:]}).Find(&attendance)
-	log.Printf("attendance:%v", attendance)
+
 	json.NewEncoder(w).Encode(attendance)
 }
 
@@ -121,7 +125,6 @@ func GetStudents(w http.ResponseWriter, r *http.Request) {
 	ownerID := vars["ownerID"]
 
 	db.Where(&model.Student{OwnerID: ownerID}).Find(&students)
-	log.Printf("students:%+v", students)
 	json.NewEncoder(w).Encode(students)
 }
 
@@ -153,7 +156,6 @@ func RollCallAllStudents(w http.ResponseWriter, r *http.Request) {
 	db.Where(&model.Attendance{StudentID: student.ID, Year: year, Month: month, Day: day}).Find(&list)
 	var check model.Check
 	if list.Year == year {
-		log.Printf("##$$$$#####\n")
 		check.Check = false
 		json.NewEncoder(w).Encode(check.Check)
 	} else {
@@ -205,6 +207,25 @@ func GetAttendanceRollData(w http.ResponseWriter, r *http.Request) {
 		attendanceData.Attend = strconv.Itoa(countAttend)
 		allAttendanceData = append(allAttendanceData, attendanceData)
 	}
-	log.Printf("all attendance data:%+v", allAttendanceData)
 	json.NewEncoder(w).Encode(allAttendanceData)
+}
+
+//UpdateAttendance this function update student date.
+func UpdateAttendance(w http.ResponseWriter, r *http.Request) {
+	db, err := gorm.Open(DatabaseName, DatabaseURL)
+	if err != nil {
+		panic("We can't open database!（UpdateStudent）")
+	}
+	defer db.Close()
+	log.Printf("POST: UpdateAttendance")
+	var attendance model.Attendance
+	decoder := json.NewDecoder(r.Body)
+	error := decoder.Decode(&attendance)
+	if error != nil {
+		w.Write([]byte("json decode error " + error.Error() + "\n"))
+	}
+	log.Printf("$$:%v", attendance)
+	// 条件付きでひとつのフィールドを更新します
+	db.Model(&attendance).Where("ID = ?", attendance.ID).Update(model.Attendance{Status: attendance.Status})
+
 }

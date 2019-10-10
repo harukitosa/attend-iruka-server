@@ -39,6 +39,7 @@ func main() {
 	r.HandleFunc("/roll_call/:{year}/:{month}/:{day}", authMiddleware(function.RollCallAllStudents)).Methods("POST")
 	r.HandleFunc("/get_roll_data/:{ownerID}", authMiddleware(function.GetAttendanceRollData)).Methods("GET")
 	r.HandleFunc("/get_one_student/:{id}", authMiddleware(function.GetOneStudent)).Methods("GET")
+	r.HandleFunc("/update", authMiddleware(function.UpdateAttendance)).Methods("POST")
 	log.Printf("server start port localhost:" + port)
 	log.Fatal(http.ListenAndServe(":"+port, handlers.CORS(allowedOrigins, allowedMethods, allowedHeaders)(r)))
 }
